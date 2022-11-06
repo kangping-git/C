@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>オンテトチャット!!</title>
+    <script src="./i.js"></script>
+    <style>
+        body,html{
+            margin: 0;
+            padding: 0;
+            background-color: rgb(36, 36, 36);
+            color: white;
+        }
+        ul{
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        li{
+            font-size: large;
+        }
+        li:hover{
+            background-color: rgb(61, 61, 61);
+        }
+        li > .time{
+            font-size: small;
+            display: none;
+            position: absolute;
+            right: 0px;
+            user-select: none;
+            -ms-user-select: none;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            color: gray;
+        }
+        li:hover > .time{
+            display: inline-block;
+        }
+        *::-webkit-scrollbar{
+            width: 10px;
+            background-color: rgba(0, 0, 0, 0);
+        }
+        *::-webkit-scrollbar-track-piece {
+            background-color: rgba(0, 0, 0, 0);
+        }
+        *::-webkit-scrollbar-thumb{
+            background-color: rgba(114, 114, 114, 0.452);
+        }
+        *{
+            scrollbar-width: thin;
+            scrollbar-color: #c0c0c073 rgba(228, 228, 228, 0);
+        }
+    </style>
+</head>
+<body>
+    <ul></ul>
+    <script>
+        let ws_url = 'wss://clouddata.turbowarp.org/';
+        function ws_connect(){
+            ws = new WebSocket(ws_url);
+            ws.addEventListener('open', function open() {
+                console.log('-- ws open');
+                ws.send(JSON.stringify({
+                    "method": "handshake",
+                    "user": "Discord_Bot",
+                    "project_id": "423246183"
+                }))
+            });
+            ws.addEventListener('message', function incoming(data) {
+                data = data.data
+                for (let i = 0;i< data.toString().split("\n").length;++i){
+                    data = JSON.parse(data.toString().split("\n")[i])
+                    if (data.name == "☁ chat.."){
+                        let d = data.value.slice(0,-11)
+                        let mojidayo = []
+                        let B = 1
+                        let moji = []
+                        while (d.length > B-1){
+                            if (d[B] != "0"){
+                                moji.push(d[B])
+                                B += 1
+                            }else{
+                                mojidayo.push(String(mojis[moji.join("")-1]))
+                                moji = []
+                                B += 1
+                            }
+                        }
+                        if (mojidayo[0] == "昇" || mojidayo[0] == "降"){
+                            mojidayo = mojidayo.slice(1)
+                        }
+                        let element = document.createElement("li")
+                        element.classList.add("chat")
+                        element.innerText = mojidayo.join("")
+                        element.innerHTML += "<span class='time'>" + new Date().toLocaleString() + "</span>"
+                        document.querySelector("ul").prepend(element)
+                    }
+                }
+            });
+            ws.addEventListener('close', function incoming(event) {
+                console.log('-- ws close');
+                ws_connect();
+            });
+        }
+        ws_connect()
+        </script>
+</body>
+</html>
